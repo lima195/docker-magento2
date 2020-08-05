@@ -1,0 +1,5 @@
+#!/bin/bash
+[ -z "$1" ] && echo "Please specify a CLI command (ex. ls)" && exit
+bin/docker-stop;
+sudo rm -rf volumes;
+bin/docker-install "$@"

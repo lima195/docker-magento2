@@ -1,0 +1,22 @@
+#!/bin/bash
+[ -z "$1" ] && echo "Please specify a CLI command (ex. ls)" && exit
+echo 'You need to run'
+
+# Stop this containers if is running
+echo '1 - bin/docker-stop'
+# Remove volumes dir to install a new db
+echo '2 - bin/docker-remove-volumes'
+# Start docker composer
+echo '3 - bin/docker-start'
+# Import db with path file param
+echo "4 - bin/mysql-import $@"
+# Set auth.json and env.php to magento
+echo "4 - bin/magento-before-install"
+# Run composer install
+echo '5 - bin/cli composer install'
+# Run magento upgrade, content deploy and clean caches
+echo '6 - bin/magento-post-install-module'
+# Set dns host
+echo '7 - bin/magento-create-dns-host'
+
+echo '8 - Change urls value on core_config_data'

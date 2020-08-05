@@ -1,0 +1,118 @@
+version: '3.1'
+services:
+  nginx:
+    container_name: arcade_nginx
+    image: nginx:latest
+    volumes:
+     - ./nginx_conf/default.conf:/etc/nginx/conf.d/default.conf
+     - ../magento:/usr/share/nginx/www
+    working_dir: /usr/share/nginx/www
+    ports:
+      - 80:80
+      - 443:443
+    expose:
+      - 443
+    links:
+      - db
+      - php:arcade_php
+    depends_on:
+      - php
+    networks:
+      arcade_net:
+        ipv4_address: 172.22.0.102
+
+  php:
+    container_name: arcade_php
+    image: lima195/php-fpm7.2:1.0
+    user: john
+    volumes:
+     - ../magento:/usr/share/nginx/www
+     - ./etc/php_ini/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+     - ./etc/php_ini/php.ini:/usr/local/etc/php/php.ini
+    working_dir: /usr/share/nginx/www
+    ports:
+      - 9000:9000
+    networks:
+      arcade_net:
+        ipv4_address: 172.22.0.104
+
+  db:
+    container_name: arcade_mysql
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./volumes/mysql/volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+      MYSQL_DATABASE: magento
+    ports:
+      - 3306:3306
+    networks:
+      arcade_net:
+        ipv4_address: 172.22.0.108
+
+  adminer:
+    container_name: arcade_adminer
+    image: adminer
+    ports:
+      - 8222:8080
+    networks:
+      arcade_net:
+        ipv4_address: 172.22.0.112
+    links:
+      - db
+
+  redis:
+    container_name: arcade_redis
+    image: redis
+    command: redis-server --requirepass magento
+    ports:
+      - "6379:6379"
+    networks:
+      arcade_net:
+        ipv4_address: 172.22.0.116
+
+  #rabbitmq:
+  #  container_name: arcade_rabbitmq
+  #  image: rabbitmq:3.6
+  #  ports:
+  #    - "15672"
+  #    - "5672"
+  #  environment:
+  #    - "RABBITMQ_DEFAULT_PASS=magento"
+  #    - "RABBITMQ_DEFAULT_USER=magento"
+  #    - "RABBITMQ_DEFAULT_VHOST='vhost'"
+  #  read_only: false
+  #  volumes:
+  #    - "/volumes/rabbitmq-data:/var/lib/rabbitmq"
+  #  entrypoint:
+  #    - "rabbitmq-server"
+  #    - "--hostname"
+  #    - "localhost"
+  #  networks:
+  #    arcade_net:
+  #      ipv4_address: 172.22.0.118
+
+  # assets:
+  #   container_name: arcade_assets
+  #   build:
+  #     context: .
+  #     dockerfile: ./assets/Dockerfile
+  #   volumes:
+  #    - ../magento:/usr/share/nginx/www
+  #   working_dir: /usr/share/nginx/www
+  #   ports:
+  #     - 9019:9019
+  #   tty: true
+  #   networks:
+  #     arcade_net:
+  #       ipv4_address: 172.22.0.114
+
+networks:
+  arcade_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16

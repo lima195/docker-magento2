@@ -1,0 +1,3 @@
+#!/bin/bash
+cp ../files/magento/auth.json ../magento/;
+cp ../files/magento/env.php ../magento/app/etc/;

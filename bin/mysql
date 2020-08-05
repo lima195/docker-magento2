@@ -1,0 +1,4 @@
+#!/bin/bash
+[ -z "$1" ] && echo "Please specify a CLI command (ex. ls)" && exit
+source env/db.env
+docker-compose exec db mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} ${MYSQL_DATABASE} -e "$@"

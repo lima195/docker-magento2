@@ -1,0 +1,2 @@
+#!/bin/bash
+docker exec -it magento2_redis redis-cli -a magento FLUSHALL
