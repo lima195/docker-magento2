@@ -1,5 +1,5 @@
 # Adminer
-
+pedro
 http://localhost:8222/
 - User: root
 - Pass: root
